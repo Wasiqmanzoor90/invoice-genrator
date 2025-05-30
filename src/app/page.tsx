@@ -1,5 +1,5 @@
 "use client";
-import MainInvoice from "./invoice/page";
+import MainInvoice from "./invoice/main/page";
 
 export default function page(){
   return(

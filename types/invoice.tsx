@@ -22,10 +22,11 @@ export interface Company
   Name: string;
   Phone: string;
   Email: string;
+  Adress : string;
 }
 
 export interface Client{
   Name: string;
-  Phone: string;
   Email : string;
+  Address: string;
 }

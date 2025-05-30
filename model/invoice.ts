@@ -12,6 +12,7 @@ const CompanySchema = new mongoose.Schema({
     Name: String,
   Phone: String,
   Email: String,
+  Adress: String,
 });
 
 
@@ -19,8 +20,8 @@ const CompanySchema = new mongoose.Schema({
 //Client Schema
 const ClientSchema = new mongoose.Schema({
     Name: String,
-    Phone: String,
     Email: String,
+    Address: String,
 })
 
 
@@ -34,4 +35,5 @@ const InvoiceSchema = new mongoose.Schema({
     notes: String,
     taxRate: Number,
 }, { timestamps: true });
+
 export default mongoose.models.Invoice || mongoose.model('Invoice', InvoiceSchema);
