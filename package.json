@@ -13,10 +13,13 @@
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^7.1.0",
     "@mui/material": "^7.1.0",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.1",
     "mongoose": "^8.15.1",
     "next": "15.3.2",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-to-print": "^3.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

@@ -1,6 +1,6 @@
 import React from "react";
 import { Client } from "../../types/invoice";
-import { Box, Grid, Paper, TextField, Typography } from "@mui/material";
+import { Box,  Paper, TextField, Typography } from "@mui/material";
 
 interface Props {
   client: Client;
@@ -22,7 +22,6 @@ const ClientinfoForm: React.FC<Props> = ({ client, onChange }) => {
         sx={{
           width: "600px",
           p: { xs: 2, md: 4 },
-         
           bgcolor: "#fff",
         }}
         elevation={0}

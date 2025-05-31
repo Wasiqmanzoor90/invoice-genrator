@@ -3,6 +3,8 @@ const InvoiceItemSchema  = new mongoose.Schema({
     description: String,
     quantity: Number,
     unitPrice: Number,
+    total : Number,
+    action : Boolean,
 });
 
 

@@ -3,6 +3,8 @@ export interface InvoiceItems {
   description: string;
   quantity: number;
   unitPrice: number;
+  total: number;
+  action : boolean;
 }
 
 export interface Invoice {
@@ -12,7 +14,7 @@ export interface Invoice {
   items: InvoiceItems[];
   issueDate: string;
   dueDate: string;
-  taxRate?: number;
+  taxRate: number;
   notes?: string;
 }
 
