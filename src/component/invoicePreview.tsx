@@ -19,7 +19,15 @@ interface Props {
 }
 
 const InvoicePreview: React.FC<Props> = ({ invoice }) => {
-  const subtotal = invoice.items.reduce((acc, item) => acc + item.total, 0);
+  // Filter out empty rows and inactive items
+  const activeItems = invoice.items.filter(item => 
+    item.action && 
+    item.description.trim() !== "" && 
+    (item.quantity > 0 || item.unitPrice > 0)
+  );
+
+  // Calculate totals based on active items only
+  const subtotal = activeItems.reduce((acc, item) => acc + (item.quantity * item.unitPrice), 0);
   const taxAmount = (invoice.taxRate / 100) * subtotal;
   const total = subtotal + taxAmount;
 
@@ -60,21 +68,21 @@ const InvoicePreview: React.FC<Props> = ({ invoice }) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {invoice.items.map((item, index) => (
+          {activeItems.map((item, index) => (
             <TableRow key={index}>
               <TableCell>{item.description}</TableCell>
               <TableCell align="right">{item.quantity}</TableCell>
-              <TableCell align="right">${item.unitPrice.toFixed(2)}</TableCell>
-              <TableCell align="right">${item.total.toFixed(2)}</TableCell>
+              <TableCell align="right">₹{item.unitPrice.toFixed(2)}</TableCell>
+              <TableCell align="right">₹{(item.quantity * item.unitPrice).toFixed(2)}</TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
 
       <Box mt={3} textAlign="right">
-        <Typography>Subtotal: ${subtotal.toFixed(2)}</Typography>
-        <Typography>Tax ({invoice.taxRate}%): ${taxAmount.toFixed(2)}</Typography>
-        <Typography variant="h6">Total: ${total.toFixed(2)}</Typography>
+        <Typography>Subtotal: ₹{subtotal.toFixed(2)}</Typography>
+        <Typography>Tax ({invoice.taxRate}%): ₹{taxAmount.toFixed(2)}</Typography>
+        <Typography variant="h6">Total: ₹{total.toFixed(2)}</Typography>
       </Box>
 
       <Box mt={3}>
