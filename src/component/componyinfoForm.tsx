@@ -1,3 +1,4 @@
+"use client";
 import { Paper, TextField, Typography, Box } from "@mui/material";
 import { Company } from "../../types/invoice";
 

@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import { Client } from "../../types/invoice";
 import { Box,  Paper, TextField, Typography } from "@mui/material";
@@ -54,7 +55,7 @@ const ClientinfoForm: React.FC<Props> = ({ client, onChange }) => {
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
           <Box>
             <Typography sx={{ fontWeight: 600, mb: 0.5 }}>
-              Company Name <span style={{ color: "#ef4444" }}>*</span>
+              Client Name <span style={{ color: "#ef4444" }}>*</span>
             </Typography>
             <TextField
               variant="standard"

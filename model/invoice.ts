@@ -29,6 +29,11 @@ const ClientSchema = new mongoose.Schema({
 
 
 const InvoiceSchema = new mongoose.Schema({
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'ClientUser',
+        required: true,
+      },
     company: CompanySchema,
     client: ClientSchema,
     items: [InvoiceItemSchema],

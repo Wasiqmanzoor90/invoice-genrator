@@ -32,3 +32,9 @@ export interface Client{
   Email : string;
   Address: string;
 }
+
+export interface ICreateUser {
+  name: string;
+  email: string;
+  password: string;
+}
