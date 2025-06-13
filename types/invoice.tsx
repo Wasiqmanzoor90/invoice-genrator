@@ -8,6 +8,7 @@ export interface InvoiceItems {
 }
 
 export interface Invoice {
+ 
   _id: Types.ObjectId | string;
   company: Company;
   client: Client;
@@ -16,6 +17,7 @@ export interface Invoice {
   dueDate: string;
   taxRate: number;
   notes?: string;
+  status: string;
 }
 
 
@@ -38,3 +40,5 @@ export interface ICreateUser {
   email: string;
   password: string;
 }
+
+export type InvoiceStatus = "Draft" | "Sent" | "Paid" | "Overdue" | "Cancelled";
