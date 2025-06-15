@@ -30,6 +30,9 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
+    // ✅ Generate a random invoice number like "INV-238472"
+    const invoiceNumber = `INV-${Math.floor(100000 + Math.random() * 900000)}`;
+
     const newInvoice = new invoice({
       company: invoiceData.company,
       client: invoiceData.client,
@@ -38,7 +41,8 @@ export async function POST(request: NextRequest) {
       dueDate: invoiceData.dueDate,
       taxRate: invoiceData.taxRate || invoiceData.tax || 0,
       notes: invoiceData.notes || "",
-      userId: userId, // ✅ Add this line
+      userId: userId,
+      invoiceNumber: invoiceNumber, // ✅ assign the generated number
     });
 
     const savedInvoice = await newInvoice.save();

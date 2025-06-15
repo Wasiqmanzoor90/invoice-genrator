@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Paper,
@@ -14,13 +14,18 @@ import {
   Menu,
   MenuItem,
   Chip,
+  TextField,
+  InputAdornment,
+  Tooltip,
 } from "@mui/material";
-import VisibilityIcon from "@mui/icons-material/Visibility";
 import DownloadIcon from "@mui/icons-material/Download";
 import ReceiptIcon from "@mui/icons-material/Receipt";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import InvoicePreview from "@/component/invoicePreview";
 import { Invoice } from "../../../../types/invoice";
+
+import DeleteIcon from "@mui/icons-material/Delete";
+import SearchIcon from "@mui/icons-material/Search";
 
 interface InvoiceListProps {
   invoices: Invoice[];
@@ -29,20 +34,39 @@ interface InvoiceListProps {
 }
 
 const statusColors: Record<string, any> = {
-  Draft: "warning",
-  Sent: "primary",
   Paid: "success",
   Overdue: "error",
   Cancelled: "default",
 };
 
-const InvoiceList: React.FC<InvoiceListProps> = ({ invoices = [], onCreateNew, onRefresh }) => {
+const InvoiceList: React.FC<InvoiceListProps> = ({
+  invoices = [],
+  onCreateNew,
+  onRefresh,
+}) => {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [menuInvoiceId, setMenuInvoiceId] = useState<string | null>(null);
 
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, invoiceId: string) => {
+  const [search, setSearch] = useState(""); //  search text
+  const [filteredInvoices, setFilteredInvoices] = useState(invoices); // ✅ filtered list
+
+  //  filter invoices when `search` or `invoices` change
+  useEffect(() => {
+    const results = invoices.filter(
+      (invoice) =>
+        invoice.company?.Name?.toLowerCase().includes(search.toLowerCase()) ||
+        invoice.company?.Email?.toLowerCase().includes(search.toLowerCase()) ||
+        invoice.invoiceNumber?.toLowerCase().includes(search.toLowerCase()) // ✅ filter by invoice number
+    );
+    setFilteredInvoices(results);
+  }, [search, invoices]);
+
+  const handleMenuOpen = (
+    event: React.MouseEvent<HTMLElement>,
+    invoiceId: string
+  ) => {
     setAnchorEl(event.currentTarget);
     setMenuInvoiceId(invoiceId);
   };
@@ -62,14 +86,28 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices = [], onCreateNew, o
 
       if (!res.ok) throw new Error("Failed to update status");
 
-      onRefresh(); // refresh invoice list after update
+      onRefresh();
     } catch (err) {
       console.error("Error updating status:", err);
     } finally {
       handleMenuClose();
     }
   };
-
+  const handleDelete = async (invoiceId: string) => {
+    try {
+      const res = await fetch(`/api/invoice/delete/${invoiceId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!res.ok) {
+        throw new Error("Failed to delete invoice");
+      }
+      alert("Invoice deleted successfully");
+      onRefresh();
+    } catch (error) {
+      console.error("Error deleting invoice:", error);
+    }
+  };
   const handlePreview = (invoice: Invoice) => {
     setSelectedInvoice(invoice);
     setPreviewOpen(true);
@@ -77,9 +115,15 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices = [], onCreateNew, o
 
   const handleDownload = (invoice: Invoice) => {
     const activeItems = invoice.items.filter(
-      item => item.action && item.description.trim() && (item.quantity > 0 || item.unitPrice > 0)
+      (item) =>
+        item.action &&
+        item.description.trim() &&
+        (item.quantity > 0 || item.unitPrice > 0)
     );
-    const subtotal = activeItems.reduce((acc, item) => acc + item.quantity * item.unitPrice, 0);
+    const subtotal = activeItems.reduce(
+      (acc, item) => acc + item.quantity * item.unitPrice,
+      0
+    );
     const taxAmount = (invoice.taxRate / 100) * subtotal;
     const total = subtotal + taxAmount;
 
@@ -119,34 +163,89 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices = [], onCreateNew, o
   return (
     <>
       <Paper elevation={1} sx={{ p: 5, borderRadius: 3, bgcolor: "#fff" }}>
-        <Typography variant="h4" fontWeight={700} mb={3} color="#1a237e" fontFamily="serif" textAlign="center">
+        <Typography
+          variant="h4"
+          fontWeight={700}
+          mb={3}
+          color="#1a237e"
+          fontFamily="serif"
+          textAlign="center"
+        >
           Your Invoices
         </Typography>
+
+        {/* ✅ search input box */}
+        <TextField
+          placeholder="Search by company name, email, or invoice number"
+          variant="outlined"
+          size="small"
+          fullWidth
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+          sx={{ mb: 2 }}
+        />
+
         <Divider sx={{ mb: 4 }} />
 
         {invoices.length === 0 ? (
           <Box textAlign="center" py={6}>
             <ReceiptIcon sx={{ fontSize: 80, color: "#e0e3e8", mb: 2 }} />
-            <Typography variant="h5" color="text.secondary" fontWeight={600} mb={2}>
+            <Typography
+              variant="h5"
+              color="text.secondary"
+              fontWeight={600}
+              mb={2}
+            >
               No invoices found
             </Typography>
-            <Typography variant="body1" color="text.secondary" mb={4} maxWidth={400} mx="auto">
-              You haven't created any invoices yet. Start by creating your first invoice to manage your billing and track payments.
+            <Typography
+              variant="body1"
+              color="text.secondary"
+              mb={4}
+              maxWidth={400}
+              mx="auto"
+            >
+              You haven't created any invoices yet. Start by creating your first
+              invoice to manage your billing and track payments.
             </Typography>
-            <Button variant="contained" size="large" color="primary" startIcon={<ReceiptIcon />} onClick={onCreateNew}>
+            <Button
+              variant="contained"
+              size="large"
+              color="primary"
+              startIcon={<ReceiptIcon />}
+              onClick={onCreateNew}
+            >
               Create Your First Invoice
             </Button>
           </Box>
         ) : (
           <>
-            {invoices.map((invoice) => (
+            {/* ✅ use filtered invoices list */}
+            {filteredInvoices.map((invoice) => (
               <Paper
                 key={invoice._id.toString()}
-                sx={{ mb: 2, p: 3, display: "flex", justifyContent: "space-between", alignItems: "center" }}
+                sx={{
+                  mb: 2,
+                  p: 3,
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
               >
                 <Box>
                   <Typography variant="h6" fontWeight={600}>
                     {invoice.company?.Name || "Untitled Invoice"}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Invoice-No: {invoice.invoiceNumber || "N/A"}{" "}
+                    {/*  show invoice number */}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     Issued: {new Date(invoice.issueDate).toLocaleDateString()}
@@ -156,30 +255,58 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices = [], onCreateNew, o
                   </Typography>
                 </Box>
                 <Stack direction="row" spacing={1} alignItems="center">
-                  <Chip label={invoice.status} color={statusColors[invoice.status]} size="small" />
+                  <Tooltip title="Deleted-Invoice">
+                    <IconButton
+                      color="error"
+                      onClick={() => handleDelete(invoice._id.toString())}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Tooltip>
+                  <Chip
+                    label={invoice.status}
+                    color={statusColors[invoice.status]}
+                    size="small"
+                  />
                   <IconButton
                     size="small"
                     onClick={(e) => handleMenuOpen(e, invoice._id.toString())}
                   >
                     <MoreVertIcon />
                   </IconButton>
-                  
-                  {/* change status */}
+
                   <Menu
                     anchorEl={anchorEl}
-                    open={Boolean(anchorEl) && menuInvoiceId === invoice._id.toString()}
+                    open={
+                      Boolean(anchorEl) &&
+                      menuInvoiceId === invoice._id.toString()
+                    }
                     onClose={handleMenuClose}
                   >
                     {["Paid", "Overdue", "Cancelled"].map((status) => (
-                      <MenuItem key={status} onClick={() => updateStatus(invoice._id.toString(), status)}>
+                      <MenuItem
+                        key={status}
+                        onClick={() =>
+                          updateStatus(invoice._id.toString(), status)
+                        }
+                      >
                         {status}
                       </MenuItem>
                     ))}
                   </Menu>
-                  <Button size="small" variant="outlined" onClick={() => handlePreview(invoice)}>
+
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    onClick={() => handlePreview(invoice)}
+                  >
                     Preview
                   </Button>
-                  <Button size="small" variant="contained" onClick={() => handleDownload(invoice)}>
+                  <Button
+                    size="small"
+                    variant="contained"
+                    onClick={() => handleDownload(invoice)}
+                  >
                     Download
                   </Button>
                 </Stack>
@@ -199,7 +326,12 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices = [], onCreateNew, o
         )}
       </Paper>
 
-      <Dialog open={previewOpen} onClose={() => setPreviewOpen(false)} maxWidth="md" fullWidth>
+      <Dialog
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        maxWidth="md"
+        fullWidth
+      >
         <DialogContent sx={{ bgcolor: "#f7fafd" }}>
           {selectedInvoice && <InvoicePreview invoice={selectedInvoice} />}
         </DialogContent>
