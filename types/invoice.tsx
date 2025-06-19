@@ -9,7 +9,6 @@ export interface InvoiceItems {
 
 export interface Invoice {
   invoiceNumber: string;
- 
   _id: Types.ObjectId | string;
   company: Company;
   client: Client;
