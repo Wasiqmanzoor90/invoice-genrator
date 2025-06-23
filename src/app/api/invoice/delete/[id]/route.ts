@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { dbConnect } from "../../../../../../lib/dbConnect";
 import invoice from "../../../../../../model/invoice";
 
-export async function POST(
+export async function DELETE(
   req: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
     await dbConnect();
-    const { id } = await context.params;
+    const { id } = params;
 
     const existuser = await invoice.findById(id);
     if (!existuser) {
