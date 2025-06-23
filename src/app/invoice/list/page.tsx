@@ -96,7 +96,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({
   const handleDelete = async (invoiceId: string) => {
     try {
       const res = await fetch(`/api/invoice/delete/${invoiceId}`, {
-        method: "POST",
+        method: "DELETE",
         headers: { "Content-Type": "application/json" },
       });
       if (!res.ok) {
