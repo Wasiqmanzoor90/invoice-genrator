@@ -4,11 +4,11 @@ import invoice from "../../../../../../model/invoice";
 
 export async function POST(
   req: NextRequest,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
-    const { id } = context.params;
+    const { id } = await context.params;
 
     const existuser = await invoice.findById(id);
     if (!existuser) {
